@@ -262,41 +262,59 @@
 </div>
 
 <script>
-// ── 精確比對規則（內嵌）──────────────────────────────
-const EXACT_RULES = [
-  { wrong: "鎧睿", correct: "鎧瑞", type: "公司名稱錯字" },
-  { wrong: "鎧銳", correct: "鎧瑞", type: "公司名稱錯字" },
-  { wrong: "鎧蕊", correct: "鎧瑞", type: "公司名稱錯字" },
-  { wrong: "鎧端", correct: "鎧瑞", type: "公司名稱錯字" },
-  { wrong: "鎧芮", correct: "鎧瑞", type: "公司名稱錯字" },
-  { wrong: "神容", correct: "神榮", type: "公司名稱錯字" },
-  { wrong: "神荣", correct: "神榮", type: "公司名稱錯字" },
-  { wrong: "神濃", correct: "神榮", type: "公司名稱錯字" },
-  { wrong: "神蓉", correct: "神榮", type: "公司名稱錯字" },
-  { wrong: "神宏", correct: "神榮", type: "公司名稱錯字" },
-  { wrong: "資更", correct: "資耕", type: "公司名稱錯字" },
-  { wrong: "資根", correct: "資耕", type: "公司名稱錯字" },
-  { wrong: "資庚", correct: "資耕", type: "公司名稱錯字" },
-  { wrong: "資耿", correct: "資耕", type: "公司名稱錯字" },
-  { wrong: "資梗", correct: "資耕", type: "公司名稱錯字" },
-  { wrong: "凱聖", correct: "凱勝", type: "公司名稱錯字" },
-  { wrong: "凱盛", correct: "凱勝", type: "公司名稱錯字" },
-  { wrong: "凱升", correct: "凱勝", type: "公司名稱錯字" },
-  { wrong: "凱昇", correct: "凱勝", type: "公司名稱錯字" },
-  { wrong: "王俊其", correct: "王俊期", type: "人名錯誤" },
-  { wrong: "王俊基", correct: "王俊期", type: "人名錯誤" },
-  { wrong: "王俊棋", correct: "王俊期", type: "人名錯誤" },
-  { wrong: "戴有理", correct: "戴有立", type: "人名錯誤" },
-  { wrong: "戴有礼", correct: "戴有立", type: "人名錯誤" },
-  { wrong: "戴有力", correct: "戴有立", type: "人名錯誤" },
-  { wrong: "張志浩", correct: "張志豪", type: "人名錯誤" },
-  { wrong: "張志好", correct: "張志豪", type: "人名錯誤" },
-  { wrong: "張志皓", correct: "張志豪", type: "人名錯誤" },
-  { wrong: "豐業",  correct: "貴隆",  type: "公司名稱錯字" },
-  { wrong: "貴龍",  correct: "貴隆",  type: "公司名稱錯字" },
-  { wrong: "貴融",  correct: "貴隆",  type: "公司名稱錯字" },
-  { wrong: "貴籠",  correct: "貴隆",  type: "公司名稱錯字" }
-];
+// ── 精確比對規則（從 rules.json 動態載入）──────────────────────────────
+let EXACT_RULES = [];
+let _rulesReady = false;
+let _rulesReadyCallbacks = [];
+
+function onRulesReady(fn) {
+  if (_rulesReady) { fn(); } else { _rulesReadyCallbacks.push(fn); }
+}
+
+(async function loadRules() {
+  try {
+    const r = await fetch('./rules.json');
+    EXACT_RULES = await r.json();
+  } catch {
+    // fallback：若無法載入則使用內嵌備份
+    EXACT_RULES = [
+      { wrong: "鎧睿", correct: "鎧瑞", type: "公司名稱錯字" },
+      { wrong: "鎧銳", correct: "鎧瑞", type: "公司名稱錯字" },
+      { wrong: "鎧蕊", correct: "鎧瑞", type: "公司名稱錯字" },
+      { wrong: "鎧端", correct: "鎧瑞", type: "公司名稱錯字" },
+      { wrong: "鎧芮", correct: "鎧瑞", type: "公司名稱錯字" },
+      { wrong: "神容", correct: "神榮", type: "公司名稱錯字" },
+      { wrong: "神荣", correct: "神榮", type: "公司名稱錯字" },
+      { wrong: "神濃", correct: "神榮", type: "公司名稱錯字" },
+      { wrong: "神蓉", correct: "神榮", type: "公司名稱錯字" },
+      { wrong: "神宏", correct: "神榮", type: "公司名稱錯字" },
+      { wrong: "資更", correct: "資耕", type: "公司名稱錯字" },
+      { wrong: "資根", correct: "資耕", type: "公司名稱錯字" },
+      { wrong: "資庚", correct: "資耕", type: "公司名稱錯字" },
+      { wrong: "資耿", correct: "資耕", type: "公司名稱錯字" },
+      { wrong: "資梗", correct: "資耕", type: "公司名稱錯字" },
+      { wrong: "凱聖", correct: "凱勝", type: "公司名稱錯字" },
+      { wrong: "凱盛", correct: "凱勝", type: "公司名稱錯字" },
+      { wrong: "凱升", correct: "凱勝", type: "公司名稱錯字" },
+      { wrong: "凱昇", correct: "凱勝", type: "公司名稱錯字" },
+      { wrong: "王俊其", correct: "王俊期", type: "人名錯誤" },
+      { wrong: "王俊基", correct: "王俊期", type: "人名錯誤" },
+      { wrong: "王俊棋", correct: "王俊期", type: "人名錯誤" },
+      { wrong: "戴有理", correct: "戴有立", type: "人名錯誤" },
+      { wrong: "戴有礼", correct: "戴有立", type: "人名錯誤" },
+      { wrong: "戴有力", correct: "戴有立", type: "人名錯誤" },
+      { wrong: "張志浩", correct: "張志豪", type: "人名錯誤" },
+      { wrong: "張志好", correct: "張志豪", type: "人名錯誤" },
+      { wrong: "張志皓", correct: "張志豪", type: "人名錯誤" },
+      { wrong: "豐業",  correct: "貴隆",  type: "公司名稱錯字" },
+      { wrong: "貴龍",  correct: "貴隆",  type: "公司名稱錯字" },
+      { wrong: "貴融",  correct: "貴隆",  type: "公司名稱錯字" },
+      { wrong: "貴籠",  correct: "貴隆",  type: "公司名稱錯字" }
+    ];
+  }
+  _rulesReady = true;
+  _rulesReadyCallbacks.forEach(fn => fn());
+})();
 
 const PROOFREAD_SYSTEM = `你是專業的中文公文校稿助理，請仔細審閱使用者提供的公文，找出所有問題。
 
@@ -417,6 +435,7 @@ let lastResult = '';
 async function startProofread() {
   const text = document.getElementById('inputText').value.trim();
   if (!text) { alert('請先貼入要校稿的文件內容'); return; }
+  if (!_rulesReady) { alert('規則載入中，請稍後再試'); return; }
 
   setLoading(true, 'AI 校稿分析中，請稍候...');
   document.getElementById('resultTitle').textContent = '✅ 校稿結果';
@@ -604,6 +623,15 @@ document.getElementById('inputText').addEventListener('keydown', e => {
 
 // 初始化
 updateStatusBadge();
+onRulesReady(() => {
+  const label = document.getElementById('aiLabel');
+  if (label) {
+    const key = getKey();
+    if (!key || !key.startsWith('gsk_')) {
+      label.textContent = `未設定 API Key（${EXACT_RULES.length} 條精確規則）`;
+    }
+  }
+});
 </script>
 </body>
 </html>
